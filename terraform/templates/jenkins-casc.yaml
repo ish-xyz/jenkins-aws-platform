@@ -1,0 +1,58 @@
+jenkins:
+  systemMessage: "Jenkins configured automatically by Jenkins Configuration as Code plugin\n\n"
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "${admin-password}"
+  authorizationStrategy: loggedInUsersCanDoAnything
+
+  nodes:
+    - permanent:
+        name: "static-agent"
+        remoteFS: "/home/jenkins"
+        launcher:
+          jnlp:
+            workDirSettings:
+              disabled: true
+              failIfWorkDirIsMissing: false
+              internalDir: "remoting"
+              workDirPath: "/tmp"
+
+  slaveAgentPort: 50000
+  agentProtocols:
+    - "jnlp2"
+credentials:
+  system:
+    domainCredentials:
+    - credentials:
+      - string:
+          description: "AWS Default Agent Key Pair"
+          scope: GLOBAL
+          id: "aws_default_agent_key_pair"
+          secret: ${admin}
+
+unclassified:
+    gitHubConfiguration:
+      apiRateLimitChecker: ThrottleForNormalize
+      endpoints:
+      - apiUri: "https://api.github.com"
+        name: "Github Endpoint"
+    location:
+      adminAddress: ish@ish-ar.io
+      url: http://jenkins.ish-ar.io/
+    gitSCM:
+      createAccountBasedOnEmail: false
+      globalConfigEmail: "jenkins@ish-ar.io"
+      globalConfigName: "Jenkins"
+    pollSCM:
+      pollingThreadCount: 5
+    simple-theme-plugin:
+      elements:
+      - cssUrl:
+          url: "https://cdn.rawgit.com/afonsof/jenkins-material-theme/gh-pages/dist/material-blue.css"
+    slackNotifier:
+      teamDomain: justeat
+      tokenCredentialId: SLACK_TOKEN
+

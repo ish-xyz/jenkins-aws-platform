@@ -1,0 +1,68 @@
+{
+  "builds": [
+    {
+      "name": "amazon-ebs",
+      "builder_type": "amazon-ebs",
+      "build_time": 1608161769,
+      "files": null,
+      "artifact_id": "eu-west-1:ami-03d819600e4ecaeea",
+      "packer_run_uuid": "b9ab071c-46a7-29fa-4d64-48ef6911f865",
+      "custom_data": null
+    },
+    {
+      "name": "amazon-ebs",
+      "builder_type": "amazon-ebs",
+      "build_time": 1608217039,
+      "files": null,
+      "artifact_id": "eu-west-1:ami-0856649faf72561fe",
+      "packer_run_uuid": "c3ce57f0-5e35-56ab-a207-a63c624f993a",
+      "custom_data": null
+    },
+    {
+      "name": "amazon-ebs",
+      "builder_type": "amazon-ebs",
+      "build_time": 1608218257,
+      "files": null,
+      "artifact_id": "eu-west-1:ami-02bfb76015d99dc91",
+      "packer_run_uuid": "ab1f5d72-9ed8-4709-9bfa-57ca2a74999e",
+      "custom_data": null
+    },
+    {
+      "name": "amazon-ebs",
+      "builder_type": "amazon-ebs",
+      "build_time": 1608222386,
+      "files": null,
+      "artifact_id": "eu-west-1:ami-09364d54eaf5cd4b2",
+      "packer_run_uuid": "f48f7e46-2ab5-b18c-a0a8-89292251defc",
+      "custom_data": null
+    },
+    {
+      "name": "amazon-ebs",
+      "builder_type": "amazon-ebs",
+      "build_time": 1608237638,
+      "files": null,
+      "artifact_id": "eu-west-1:ami-0bcbaa469717faf00",
+      "packer_run_uuid": "16bb48d2-a8db-5c47-d9ef-4a7478a98724",
+      "custom_data": null
+    },
+    {
+      "name": "amazon-ebs",
+      "builder_type": "amazon-ebs",
+      "build_time": 1608255942,
+      "files": null,
+      "artifact_id": "eu-west-1:ami-0363ef1c9d22c0bda",
+      "packer_run_uuid": "3ca04d49-6710-3b6d-4c70-3e456aebd5f9",
+      "custom_data": null
+    },
+    {
+      "name": "amazon-ebs",
+      "builder_type": "amazon-ebs",
+      "build_time": 1608314711,
+      "files": null,
+      "artifact_id": "eu-west-1:ami-051531a7eb65bc352",
+      "packer_run_uuid": "79e8165a-eb6e-de41-85d9-35965bae1350",
+      "custom_data": null
+    }
+  ],
+  "last_run_uuid": "79e8165a-eb6e-de41-85d9-35965bae1350"
+}

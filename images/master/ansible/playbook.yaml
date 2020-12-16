@@ -1,0 +1,99 @@
+---
+- name: Jenkins AMI provisioning
+  hosts: all
+  become: true
+  tasks:
+
+  - name: Install NGINX
+    command: amazon-linux-extras install nginx1 -y
+    args:
+      creates: /sbin/nginx
+
+  - name: Add Jenkins repo to yum
+    get_url:
+      url: https://pkg.jenkins.io/redhat-stable/jenkins.repo
+      dest: /etc/yum.repos.d/jenkins.repo
+      force_basic_auth: yes
+
+  - name: Import Jenkins repo key
+    rpm_key:
+      state: present
+      key: https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+
+  - name: YUM install jenkins & java 8
+    yum:
+      name:
+        - java-1.8.0-openjdk
+        - jenkins-2.263.1-1.1
+      state: present
+
+  - name: Adding jenkins user to nginx
+    user:
+      name: jenkins
+      groups: nginx
+      append: yes
+
+  - name: Enable services
+    systemd:
+      name: "{{ item }}"
+      enabled: yes
+      masked: no
+    with_items:
+    - "nginx"
+    - "jenkins"
+
+  - name: Create logs dir for jenkins/nginx
+    file:
+      path: /var/log/nginx/jenkins
+      state: directory
+      mode: '0755'
+      owner: nginx
+      group: nginx
+
+  - name: Import nginx.conf
+    copy:
+      src: /tmp/ansible/files/nginx.conf
+      dest: /etc/nginx/conf.d/jenkins.conf
+      owner: nginx
+      group: nginx
+      mode: '0644'
+
+  - name: Import jenkins_env.conf
+    copy:
+      src: /tmp/ansible/files/jenkins-env.conf
+      dest: /etc/sysconfig/jenkins
+      owner: jenkins
+      group: jenkins
+      mode: '0644'
+
+  - name: Create CASC dir
+    file:
+      path: /var/lib/jenkins/casc_configs
+      state: directory
+      mode: '0755'
+      owner: jenkins
+      group: jenkins
+
+  - name: Import Install plugins script
+    copy:
+      src: /tmp/ansible/files/install-plugins.sh
+      dest: /usr/local/bin/install-plugins.sh
+      mode: '0755'
+
+  - name: Import Jenkins Support file
+    copy:
+      src: /tmp/ansible/files/jenkins-support.sh
+      dest: /usr/local/bin/jenkins-support
+      mode: '0755'
+
+  # Use shell, command wont work.
+  # File /tmp/ansible/files/jenkins-plugins.txt imported by Packer (see packer.json)
+  - name: Install Jenkins plugins
+    shell: /usr/local/bin/install-plugins.sh < /tmp/ansible/files/jenkins-plugins.txt
+
+  - name: Remove temporary files
+    shell: rm -rf /tmp/ansible
+
+  # Important
+  - name: Reset permissions on jenkins home
+    shell: chown -R jenkins:jenkins /var/lib/jenkins
