@@ -5,9 +5,14 @@ jenkins:
       allowsSignup: false
       users:
         - id: "admin"
-          password: "${admin-password}"
-  authorizationStrategy: loggedInUsersCanDoAnything
+          password: "admin"
 
+  authorizationStrategy:
+    globalMatrix:
+      permissions:
+      - "Overall/Administer:admin"
+      - "Overall/Administer:authenticated"
+      - "Overall/Read:authenticated"
   nodes:
     - permanent:
         name: "static-agent"
@@ -23,16 +28,21 @@ jenkins:
   slaveAgentPort: 50000
   agentProtocols:
     - "jnlp2"
+  clouds:
+
 credentials:
   system:
     domainCredentials:
-    - credentials:
-      - string:
-          description: "AWS Default Agent Key Pair"
-          scope: GLOBAL
-          id: "aws_default_agent_key_pair"
-          secret: ${admin}
-
+      - credentials:
+          - basicSSHUserPrivateKey:
+              scope: SYSTEM
+              id: jenkins-agent-key-pair
+              username: ec2-user
+              passphrase: ''
+              description: "Jenkins Agent SSH key pair"
+              privateKeySource:
+                directEntry:
+                  privateKey: ${jenkins-slave-key}
 unclassified:
     gitHubConfiguration:
       apiRateLimitChecker: ThrottleForNormalize
