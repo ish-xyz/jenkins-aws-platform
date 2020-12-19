@@ -1,1 +1,3 @@
 .credz
+terraform/terraform.tfstate*
+terraform/.terraform
