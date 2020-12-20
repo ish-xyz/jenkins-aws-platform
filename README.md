@@ -42,7 +42,8 @@ More info about it can be found [here]('https://github.com/jenkinsci/configurati
 
 Using Jenkins CASC we will create a seed job which will then create all the other pipelines needed within Jenkins.
 In this example, a seed job is a Jenkins freestyle job that can create other jobs using the Jenkins DSL Plugin.
-(see: https://plugins.jenkins.io/job-dsl/)
+(see: https://plugins.jenkins.io/job-dsl/)<br><br><br>
+
 
 
 ### Jenkins Master: Infrastructure provisioning with Terraform
