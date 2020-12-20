@@ -1,3 +1,4 @@
 .credz
 terraform/terraform.tfstate*
 terraform/.terraform
+terraform/jenkins-master.pem
