@@ -1,11 +1,15 @@
 #!/bin/bash
 set -e
 
-#DEPRECATED: This script will soon become a github action
-echo "DEPRECATED: This script will soon become a github action"
-
 build() {
     docker build -t hashitools:local .
+}
+
+helper() {
+    echo """
+    ./run.sh create-image master
+    ./run.sh deploy    
+    """
 }
 
 create-image() {
@@ -23,7 +27,13 @@ create-image() {
 }
 
 deploy() {
-    echo "TODO"
+    JENKINS_MASTER_AMI_ID=$(cat images/master/manifest.json | jq '.builds | last | .artifact_id' | awk -F ":" {'print $2'} | awk -F '"' {'print $1'})
+    docker run \
+        -v $(pwd)/terraform:/mnt/terraform \
+        -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
+        -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
+        --rm \
+        hashitools:local sh -c "cd /mnt/terraform && terraform init && terraform apply -var=\"image_id=${JENKINS_MASTER_AMI_ID}\" -auto-approve"
 }
 
 main() {
@@ -31,6 +41,10 @@ main() {
     if [[ $1 == "create-image" ]]; then 
         build
         create-image $2
+    elif [[ $1 == "deploy" ]]; then
+        deploy
+    else
+        helper
     fi
 }
 
