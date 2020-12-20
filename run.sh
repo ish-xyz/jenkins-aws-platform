@@ -26,14 +26,14 @@ create-image() {
         hashitools:local sh -c "cd /mnt/packer && packer build packer.json"
 }
 
-deploy() {
+run_terraform() {
     JENKINS_MASTER_AMI_ID=$(cat images/master/manifest.json | jq '.builds | last | .artifact_id' | awk -F ":" {'print $2'} | awk -F '"' {'print $1'})
     docker run \
         -v $(pwd)/terraform:/mnt/terraform \
         -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
         -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
         --rm \
-        hashitools:local sh -c "cd /mnt/terraform && terraform init && terraform apply -var=\"jenkins_master_ami=${JENKINS_MASTER_AMI_ID}\" -auto-approve"
+        hashitools:local sh -c "cd /mnt/terraform && terraform init && terraform $1 -var=\"jenkins_master_ami=${JENKINS_MASTER_AMI_ID}\" -auto-approve"
 }
 
 main() {
@@ -43,7 +43,10 @@ main() {
         create-image $2
     elif [[ $1 == "deploy" ]]; then
         build
-        deploy
+        run_terraform apply
+    elif [[ $1 == "destroy" ]]; then
+        build
+        run_terraform destroy
     else
         helper
     fi
