@@ -61,7 +61,7 @@ unclassified:
     simple-theme-plugin:
       elements:
       - cssUrl:
-          url: "https://cdn.rawgit.com/afonsof/jenkins-material-theme/gh-pages/dist/material-blue.css"
+          url: "https://cdn.rawgit.com/afonsof/jenkins-material-theme/gh-pages/dist/material-purple.css"
     slackNotifier:
       teamDomain: justeat
       tokenCredentialId: SLACK_TOKEN

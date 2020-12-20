@@ -82,13 +82,20 @@ You'll also be able to tell Jenkins (from the CASC configuration) which AMI use 
 
 ### Steps
 
-0. Create AWS keys with admin access.
-
-1. Create a file called ./.credz as follow:
+0. Create AWS keys with admin access & clone this repo:
 
 ```
-export AWS_SECRET_ACCESS_KEY=<aws-credential>
-export AWS_ACCESS_KEY_ID=<aws-credential>
+git clone https://github.com/ish-xyz/jenkins-aws-platform.git ~/jenkins-aws-platform
+```
+
+1. Create a file called ~/jenkins-aws-platform/.credz:
+
+```
+vi ~/jenkins-aws-platform/.credz
+```
+```
+export AWS_SECRET_ACCESS_KEY={{ CHANGE_ME }} <- early-created-aws-credential
+export AWS_ACCESS_KEY_ID={{ CHANGE_ME }} <- early-created-aws-credential
 ```
 
 2. Create the Jenkins master image
