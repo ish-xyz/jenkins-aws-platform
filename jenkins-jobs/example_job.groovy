@@ -1,8 +1,11 @@
-folder("examples") {
+String basePath = 'example1'
+String repo = 'sheehan/gradle-example'
+
+folder(basePath) {
     description 'This example shows basic folder/job creation.'
 }
 
-job("examples/example-job") {
+job("$basePath/gradle-example-build") {
     scm {
         github repo
     }
@@ -10,6 +13,15 @@ job("examples/example-job") {
         scm 'H/5 * * * *'
     }
     steps {
-        print "THIS JOB HAS BEEN CREATED AUTOMATICALLY"
+        gradle 'assemble'
+    }
+}
+
+job("$basePath/gradle-example-deploy") {
+    parameters {
+        stringParam 'host'
+    }
+    steps {
+        shell 'scp war file; restart...'
     }
 }

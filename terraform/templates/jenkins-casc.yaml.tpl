@@ -65,7 +65,15 @@ unclassified:
     slackNotifier:
       teamDomain: justeat
       tokenCredentialId: SLACK_TOKEN
-
+security:
+  apiToken:
+    creationOfLegacyTokenEnabled: false
+    tokenGenerationOnCreationEnabled: false
+    usageStatisticsEnabled: true
+  globalJobDslSecurityConfiguration:
+    useScriptSecurity: false
+  sSHD:
+    port: -1
 jobs:
   - script: >
       freeStyleJob('seed_job') {
