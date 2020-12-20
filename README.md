@@ -135,9 +135,17 @@ aws secretsmanager create-secret --name 'jenkins-master-admin-user' --secret-str
 
 ## Considerations
 
+### Pros & Cons
+
+### What's missing for a production-ready setup?
+
+* IAM Role/Policy
+* TLS Certificate
+* Security Hardening
+* Review plugins security issues
+* Improve Jenkins authentication
 
 ## TODO
 
-Jclouds
-Jenkins Agent AMI Packer config
-Configure TLS
+- Configure Jclouds
+- Jenkins Agent AMI Packer config
