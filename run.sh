@@ -7,9 +7,17 @@ build() {
 
 helper() {
     echo """
-    ./run.sh create-image master
-    ./run.sh deploy    
-    """
+usage: ./run.sh
+    
+create-image {{ image_folder_name }} - Create the Jenkins AMI
+
+deploy  - Create the infrastructure
+
+destroy - Destroy the infrastructure
+
+help    - Shows this help message
+
+"""
 }
 
 create-image() {

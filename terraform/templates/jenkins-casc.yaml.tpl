@@ -5,13 +5,13 @@ jenkins:
       allowsSignup: false
       users:
         - id: "admin"
-          password: "admin"
+          password: "${jenkins-master-admin-user}"
 
   authorizationStrategy:
     globalMatrix:
       permissions:
       - "Overall/Administer:admin"
-      - "Overall/Administer:authenticated"
+      - "Overall/Administer:admin"
       - "Overall/Read:authenticated"
   nodes:
     - permanent:
@@ -61,8 +61,36 @@ unclassified:
     simple-theme-plugin:
       elements:
       - cssUrl:
-          url: "https://cdn.rawgit.com/afonsof/jenkins-material-theme/gh-pages/dist/material-purple.css"
+          url: "https://cdn.rawgit.com/afonsof/jenkins-material-theme/gh-pages/dist/material-green.css"
     slackNotifier:
       teamDomain: justeat
       tokenCredentialId: SLACK_TOKEN
 
+jobs:
+  - script: >
+      freeStyleJob('seed_job') {
+          displayName('seed_job')
+          description('Jenkins Seed Job')
+          concurrentBuild(false)
+          quietPeriod(5)
+          logRotator(-1, 30)
+          label('main')
+          properties{
+              githubProjectUrl("https://github.com/ish-xyz/jenkins-aws-platform.git")
+          }
+          scm {
+              git {
+                  remote {
+                      url("https://github.com/ish-xyz/jenkins-aws-platform.git")
+                      //credentials('')
+                      name('origin')
+                  }
+                  branch('master')
+              }
+          }
+          steps {
+              dsl {
+                  external('jenkins-jobs/*.groovy')
+              }
+          }
+      }

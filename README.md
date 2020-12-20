@@ -1,31 +1,33 @@
-# Work in progress - expect incorrect docs and flaky workflows :D 
+## Work in progress - expect incorrect docs and flaky workflows :D 
 ----
 
-# BRIEF DESCRIPTION
+## BRIEF DESCRIPTION
 
-This repository contains the infrastructure as code needed to automate the setup of Jenkins and its jobs, secrets, and needed AWS infrastructure.
+This repository contains the infrastructure code and configurations needed to automate the provisioning of Jenkins, its jobs, secrets, and the related AWS components/services.
 
 The platform takes advantage of 4 main tools/systems:
 
-Terraform
-Packer + Ansible
-Jenkins CASC 
-Jenkins DSL 
+- Terraform
+- Packer + Ansible
+- Jenkins CASC 
+- Jenkins DSL 
 
-The infrastructure layer chosen here is AWS but the architecture could potentially work in every cloud provider.<br><br><br>
+Although the infrastructure's demo is based on AWS, this design can work in every cloud provider.<br><br><br>
 
 
-# CONCEPTS
+## CONCEPTS
 
-The design I have decided to go for this platform is "Immutable infrastructure". 
-For this particular reason I have used Packer to build the images (Jenkins master and agent AMIs) and Terraform to deploy the infrastructure.
+The approach I have decided to use is "Immutable infrastructure", and a clear split between CI & CD.
+Where the CI is performed by Packer and the CD by Terraform.
+
+Packer is used to build the images (Jenkins master and agent AMIs) and Terraform to deploy/configure the AWS infrastructure.
 <br><br>
 
 ### Jenkins Master: AMI creation with Packer + Ansible
 
-With the code defined in `/images/master` packer will create a new AMI with our Jenkins Master pre-configured in it.
+With the code defined in `/images/master` packer will create a new AMI with our Jenkins Master and its dependencies pre-configured in it.
 
-When you execute Packer (see section: Tutorial) it will:
+When you run `./run.sh create-image master` a Docker image with packer in it will be created and Packer will:
 
 1. Create a temporary instance
 2. Connect to the instance and execute the ansible playbook defined here -> `/images/master/ansible/playbook`
@@ -63,9 +65,13 @@ Terraform will create the following resources:
 
 ### JClouds (not implemented in CASC yet)
 
-Using Jenkins functionality clouds Jenkins will be able to deploy agents on-demand and destroy them when they're not needed anymore AUTOMATICALLY.
+Using clouds, a Jenkins 2 functionality, Jenkins will be able to deploy agents on-demand and destroy them when they're not needed, **automatically**.
 
-You'll also be able to tell Jenkins (from the CASC configuration) which AMI use to spawn user, hence you'll be able to use MACOS, WINDOWS or LINUX instances as Jenkins agents.
+You'll also be able to tell Jenkins (from the CASC configuration) which AMI use to spawn user, hence you'll be able to use MacOs, Windows, or Linux instances as Jenkins agents.
+
+Through CASC you can also ensure that a minimum of X agents will always be alive.
+
+The Jenkins Clouds is configured here: $URL
 <br><br><br>
 
 
@@ -73,22 +79,22 @@ You'll also be able to tell Jenkins (from the CASC configuration) which AMI use 
 <br><br><br>
 
 
-# Tutorial (not finished yet)
+## Tutorial
 
 ### Requirements:
 
-* docker >= 20.10.0
+* Docker >= 20.10.0
+* AWS CLI Installed and configured
 
 
-### Steps
 
-0. Create AWS keys with admin access & clone this repo:
+- Create AWS keys with admin access & clone this repo:
 
 ```
 git clone https://github.com/ish-xyz/jenkins-aws-platform.git ~/jenkins-aws-platform
 ```
 
-1. Create a file called ~/jenkins-aws-platform/.credz:
+- Create a file called ~/jenkins-aws-platform/.credz:
 
 ```
 vi ~/jenkins-aws-platform/.credz
@@ -96,15 +102,39 @@ vi ~/jenkins-aws-platform/.credz
 ```
 export AWS_SECRET_ACCESS_KEY={{ CHANGE_ME }} <- early-created-aws-credential
 export AWS_ACCESS_KEY_ID={{ CHANGE_ME }} <- early-created-aws-credential
+export AWS_DEFAULT_REGION=eu-west-1
 ```
 
-2. Create the Jenkins master image
+- Run the following command to create your Jenkins admin password:
 
 ```
-bash run.sh create-image master
+cd ~/jenkins-aws-platform
+source .credz
+aws secretsmanager create-secret --name 'jenkins-master-admin-user' --secret-string 'admin-password' 
 ```
 
-3. Deploy Jenkins
+- Create the Jenkins master image with Docker + Packer:
+
 ```
-bash run.sh deploy
+./run.sh create-image master
 ```
+
+- Deploy Jenkins with Docker + Terraform:
+```
+./run.sh deploy
+```
+
+- Destroy the infrastructure with Docker + Terraform:
+
+```
+./run.sh destroy
+```
+
+## Considerations
+
+
+## TODO
+
+Jclouds
+Jenkins Agent AMI Packer config
+Configure TLS
