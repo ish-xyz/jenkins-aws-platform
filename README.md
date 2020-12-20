@@ -133,10 +133,12 @@ aws secretsmanager create-secret --name 'jenkins-master-admin-user' --secret-str
 ```
 ./run.sh destroy
 ```
+<br><br><br>
 
 ## Considerations
 
 ### Pros & Cons
+- TODO
 
 ### What's missing for a production-ready setup?
 
