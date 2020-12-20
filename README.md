@@ -3,7 +3,7 @@
 
 ## BRIEF DESCRIPTION
 
-This repository contains the infrastructure code and configurations needed to automate the provisioning of Jenkins, its jobs, secrets, and the related AWS components/services.
+This repository contains the infrastructure code and configurations needed to automate the provisioning of Jenkins, pipelines, agents, secrets, and the required AWS components/services.
 
 The platform takes advantage of 4 main tools/systems:
 
@@ -35,27 +35,34 @@ When you run `./run.sh create-image master` a Docker image with packer in it wil
 4. It will output some metadata to a file called `/images/master/manifest.json`
 <br><br><br>
 
+### Jenkins CASC:
+
+Jenkins CASC is a Jenkins plugin which allows you to configure Jenkins and its plugins from a YAML file.
+More info about it can be found [here]('https://github.com/jenkinsci/configuration-as-code-plugin').
+
+Using Jenkins CASC we will create a seed job which will then create all the other pipelines needed within Jenkins.
+In this example, a seed job is a Jenkins freestyle job that can create other jobs using the Jenkins DSL Plugin.
+(see: https://plugins.jenkins.io/job-dsl/)
 
 
 ### Jenkins Master: Infrastructure provisioning with Terraform
 
 If you know Terraform already, I have done nothing out of the ordinary here.
 
-Terraform will create the following resources:
+Terraform will perform the following actions:
 
-- IAM Role + IAM Policy (Necessary for the Jenkins to connect to the AWS Services) <br>
+- Create a IAM Role + IAM Policy (Necessary for the Jenkins to connect to the AWS Services. E.g.: Secret manager, EC2, etc.) <br>
 
-- PEM Keys (With RSA Algorithm) <- This are the keys used for the master & agent SSH connections. <br>
+- Create the PEM Keys (With RSA Algorithm) <- This are the keys used for the master & agent SSH connections. <br>
 
 - Save the early created keys to AWS Secret Manager <br>
-  (**NOTE: Using the Jenkins AWS Credential plugin the agent' SSH key will be automatically be created as credentials within Jenkins**) <br>
+  (**NOTE: Using the Jenkins AWS Credential plugin the agents SSH key will be automatically be created as credentials within Jenkins**) <br>
 
-- Render the CASC file (`/terraform/templates/jenkins.yaml.tpl`). <br>
+- Render and upload the CASC file (`/terraform/templates/jenkins.yaml.tpl`). <br>
   **NOTE:** <br>
-  The config is a template because Terraform needs to update the value of ${jenkins-slave-ssh-keypair}. <br>
-  Jenkins using CASC will create a credential called "Jenkins Agent SSH Key" which is needed by Jenkins JClouds to provision Agents automatically. <br>
+  Jenkins using CASC will create a credential called "jenkins-agent-key-pair" which is needed by Jenkins Clouds to provision Agents automatically. <br>
   The content of the actual key is stored in AWS Secret Manager by Terraform itself and is accesible by Jenkins using the configured IAM role. <br>
-  However since the name of the secret, in AWS Secret Manager, changes at every Terraform run, I needed to template the CASC configuration, making the value dynamic. <br>
+  However since the name of the secret, in AWS Secret Manager, changes at every Terraform run, I needed to template the CASC configuration, making the value of ${jenkins-agent-key-pair} dynamic. <br>
 
 - Provision the required Security Groups.
 
@@ -72,10 +79,6 @@ You'll also be able to tell Jenkins (from the CASC configuration) which AMI use 
 Through CASC you can also ensure that a minimum of X agents will always be alive.
 
 The Jenkins Clouds is configured here: $URL
-<br><br><br>
-
-
-### Seed JOB + DSL JOBS (not implemented in the code yet)
 <br><br><br>
 
 

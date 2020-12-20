@@ -5,7 +5,7 @@ jenkins:
       allowsSignup: false
       users:
         - id: "admin"
-          password: "${jenkins-master-admin-user}"
+          password: "$${jenkins-master-admin-user}"
 
   authorizationStrategy:
     globalMatrix:

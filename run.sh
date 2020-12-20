@@ -28,6 +28,7 @@ create-image() {
 
     docker run \
         -v $(pwd)/images/${1}:/mnt/packer \
+        -e AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION} \
         -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
         -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
         --rm \
@@ -38,6 +39,7 @@ run_terraform() {
     JENKINS_MASTER_AMI_ID=$(cat images/master/manifest.json | jq '.builds | last | .artifact_id' | awk -F ":" {'print $2'} | awk -F '"' {'print $1'})
     docker run \
         -v $(pwd)/terraform:/mnt/terraform \
+        -e AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION} \
         -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
         -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
         --rm \
