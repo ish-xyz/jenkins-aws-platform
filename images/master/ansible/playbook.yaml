@@ -25,6 +25,7 @@
       name:
         - java-1.8.0-openjdk
         - jenkins-2.263.1-1.1
+        - git
       state: present
 
   - name: Adding jenkins user to nginx
