@@ -74,7 +74,7 @@ jobs:
           concurrentBuild(false)
           quietPeriod(5)
           logRotator(-1, 30)
-          label('main')
+          label('master')
           properties{
               githubProjectUrl("https://github.com/ish-xyz/jenkins-aws-platform.git")
           }
@@ -85,7 +85,7 @@ jobs:
                       //credentials('')
                       name('origin')
                   }
-                  branch('master')
+                  branch('main')
               }
           }
           steps {
