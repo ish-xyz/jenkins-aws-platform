@@ -75,6 +75,11 @@ You'll also be able to tell Jenkins (from the CASC configuration) which AMI use 
 
 # Tutorial (TODO)
 
+### Requirements:
+
+* docker >=
+
+
 1. Create a file called ./.credz as follow:
 
 ```
