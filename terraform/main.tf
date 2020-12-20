@@ -5,23 +5,34 @@
 ###### VARIABLES
 
 variable "jenkins_master_ami" {
-  type  = string
-  value = "ami-07368ad06dc497686"
+  type    = string
+  default = "ami-07368ad06dc497686"
 }
 
 variable "jenkins_master_subnet_id" {
-  type  = string
-  value = "subnet-6c9a2b25"
+  type    = string
+  default = "subnet-6c9a2b25"
 }
 
 variable "jenkins_master_vpc_id" {
-  type  = string
-  value = "vpc-f670c791"
+  type    = string
+  default = "vpc-f670c791"
 }
 
 variable "jenkins_master_instance_type" {
-  type  = string
-  value = "t2.medium"
+  type    = string
+  default = "t2.medium"
+}
+
+variable "jenkins_master_ssh_user" {
+  type    = string
+  default = "ec2-user"
+}
+
+###### RANDOM ID
+
+resource "random_id" "id" {
+  byte_length = 8
 }
 
 ###### SLAVE KEY
@@ -41,7 +52,8 @@ resource "aws_secretsmanager_secret_version" "jenkins_slave_key" {
 }
 
 resource "aws_secretsmanager_secret" "jenkins_slave_key" {
-  name = "jenkins-slave-key"
+  name        = "jenkins-slave-key-${random_id.id.hex}"
+  description = "Jenkins Slave RSA PEM PRIVATE KEY"
 }
 
 ###### MASTER KEY
@@ -61,7 +73,8 @@ resource "aws_secretsmanager_secret_version" "jenkins_master_key" {
 }
 
 resource "aws_secretsmanager_secret" "jenkins_master_key" {
-  name = "jenkins-master-key"
+  name        = "jenkins-master-key-${random_id.id.hex}"
+  description = "Jenkins Master RSA PEM PRIVATE KEY"
 }
 
 ###### IAM ROLE
@@ -185,10 +198,10 @@ module "jenkins_master_ec2" {
 
   ami                         = var.jenkins_master_ami
   instance_type               = var.jenkins_master_instance_type
-  key_name                    = aws_key_pair.jenkins_master.name
+  key_name                    = aws_key_pair.jenkins_master.key_name
   monitoring                  = true
   associate_public_ip_address = true
-  instance_profile            = aws_iam_instance_profile.jenkins_master_instance_profile.name
+  iam_instance_profile        = aws_iam_instance_profile.jenkins_master_instance_profile.name
   vpc_security_group_ids      = [aws_security_group.jenkins_master_sg.id]
   subnet_id                   = var.jenkins_master_subnet_id
 
@@ -197,30 +210,58 @@ module "jenkins_master_ec2" {
     created_by = "terraform"
   }
 }
+##### CREATE JENKINS.YAML CASC
+
+resource "local_file" "foo" {
+  content  = templatefile("templates/jenkins-casc.yaml.tpl", {jenkins-slave-key = aws_secretsmanager_secret.jenkins_slave_key.name})
+  filename = "jenkins.yaml"
+}
 
 ##### IMPORT CASC CONFIGURATION AND RESTART JENKINS
 
 resource "null_resource" "jenkins_master_configuration" {
-  # Changes to any instance of the cluster requires re-provisioning
+  # Bootstrap Jenkins
+
   triggers = {
     id = uuid()
   }
 
-  # Bootstrap script can run on any instance of the cluster
-  # So we just choose the first in this case
+
   connection {
-    host = module.jenkins_master_ec2.public_ip
+    type        = "ssh"
+    host        = flatten(module.jenkins_master_ec2.public_ip)[0]
+    user        = var.jenkins_master_ssh_user
+    private_key = tls_private_key.jenkins_master.private_key_pem
   }
 
   provisioner "file" {
-    source      = "files/jenkins-casc.yaml"
-    destination = "/var/lib/jenkins/casc_configuration/jenkins.yaml"
+    source      = "jenkins.yaml"
+    destination = "/tmp/jenkins.yaml"
   }
 
   provisioner "remote-exec" {
-    # Bootstrap script called with private_ip of each node in the cluster
     inline = [
-      "chown -R jenkins:jenkins /var/lib/jenkins && systemctl restart jenkins",
+      "sudo mv /tmp/jenkins.yaml /var/lib/jenkins/casc_configs/jenkins.yaml",
+      "sudo chown -R jenkins:jenkins /var/lib/jenkins",
+      "sudo systemctl restart jenkins",
     ]
   }
+}
+
+##### DEBUG
+resource "local_file" "jenkins_master_keyfile" {
+  content  = tls_private_key.jenkins_master.private_key_pem
+  filename = "${path.module}/jenkins-master.pem"
+}
+
+output "instance_ip_addr" {
+  value = element(module.jenkins_master_ec2[*].public_ip, 0)
+}
+
+output "ssh_user" {
+  value = var.jenkins_master_ssh_user
+}
+
+output "ssh_keyfile" {
+  value = "${path.module}/jenkins-master.pem"
 }
