@@ -33,7 +33,7 @@ deploy() {
         -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
         -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
         --rm \
-        hashitools:local sh -c "cd /mnt/terraform && terraform init && terraform apply -var=\"image_id=${JENKINS_MASTER_AMI_ID}\" -auto-approve"
+        hashitools:local sh -c "cd /mnt/terraform && terraform init && terraform apply -var=\"jenkins_master_ami=${JENKINS_MASTER_AMI_ID}\" -auto-approve"
 }
 
 main() {
@@ -42,6 +42,7 @@ main() {
         build
         create-image $2
     elif [[ $1 == "deploy" ]]; then
+        build
         deploy
     else
         helper
