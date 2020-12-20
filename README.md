@@ -61,7 +61,7 @@ Terraform will create the following resources:
 <br><br><br>
 
 
-### JClouds (not implemented in the code yet)
+### JClouds (not implemented in CASC yet)
 
 Using Jenkins functionality clouds Jenkins will be able to deploy agents on-demand and destroy them when they're not needed anymore AUTOMATICALLY.
 
@@ -73,24 +73,31 @@ You'll also be able to tell Jenkins (from the CASC configuration) which AMI use 
 <br><br><br>
 
 
-# Tutorial (TODO)
+# Tutorial (not finished yet)
 
 ### Requirements:
 
-* docker >=
+* docker >= 20.10.0
 
+
+### Steps
+
+0. Create AWS keys with admin access.
 
 1. Create a file called ./.credz as follow:
 
 ```
-export AWS_SECRET_ACCESS_KEY=<credential>
-export AWS_ACCESS_KEY_ID=<credential>
+export AWS_SECRET_ACCESS_KEY=<aws-credential>
+export AWS_ACCESS_KEY_ID=<aws-credential>
 ```
 
-2. Run packer
+2. Create the Jenkins master image
 
 ```
-source .credz && \
-cd jenkins/master && \
-packer build packer.json
-````
+bash run.sh create-image master
+```
+
+3. Deploy Jenkins
+```
+bash run.sh deploy
+```

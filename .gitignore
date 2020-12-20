@@ -2,4 +2,4 @@
 terraform/terraform.tfstate*
 terraform/.terraform
 terraform/jenkins-master.pem
-.jenkins-aws-platform
+terraform/jenkins.yaml

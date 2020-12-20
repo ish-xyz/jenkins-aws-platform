@@ -2,7 +2,6 @@
 
 variable "jenkins_master_ami" {
   type    = string
-  default = "ami-07368ad06dc497686"
 }
 
 variable "jenkins_master_subnet_id" {
