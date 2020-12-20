@@ -1,7 +1,3 @@
-# TODO
-# Fix template jenkins.yaml
-# take AMI-ID as parameter (variable) X
-
 ###### VARIABLES
 
 variable "jenkins_master_ami" {
