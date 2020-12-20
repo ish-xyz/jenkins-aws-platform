@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+#DEPRECATED: This script will soon become a github action
+echo "DEPRECATED: This script will soon become a github action"
+
 build() {
     docker build -t hashitools:local .
 }
