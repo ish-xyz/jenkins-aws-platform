@@ -1,28 +1,6 @@
-###### VARIABLES
+###### DATA
 
-variable "jenkins_master_ami" {
-  type    = string
-}
-
-variable "jenkins_master_subnet_id" {
-  type    = string
-  default = "subnet-6c9a2b25"
-}
-
-variable "jenkins_master_vpc_id" {
-  type    = string
-  default = "vpc-f670c791"
-}
-
-variable "jenkins_master_instance_type" {
-  type    = string
-  default = "t2.medium"
-}
-
-variable "jenkins_master_ssh_user" {
-  type    = string
-  default = "ec2-user"
-}
+data "aws_region" "current" {}
 
 ###### RANDOM ID
 
@@ -133,6 +111,57 @@ resource "aws_iam_instance_profile" "jenkins_master_instance_profile" {
   role = aws_iam_role.jenkins_master_role.name
 }
 
+
+##### JENKINS AGENTS SECURITY GROUP
+
+resource "aws_security_group" "jenkins_agent_sg" {
+  name        = "jenkins_agent_sg"
+  description = "Allow HTTP/HTTPS/SSH to 0.0.0.0 and all egress connections"
+  vpc_id      = var.jenkins_agent_vpc_id
+
+  tags = {
+    Name = "jenkins_agent_sg"
+  }
+}
+
+
+resource "aws_security_group_rule" "jenkins_agent_https" {
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.jenkins_agent_sg.id
+}
+
+resource "aws_security_group_rule" "jenkins_agent_http" {
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.jenkins_agent_sg.id
+}
+
+resource "aws_security_group_rule" "jenkins_agent_ssh" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.jenkins_agent_sg.id
+}
+
+resource "aws_security_group_rule" "jenkins_agent_egress_all" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.jenkins_agent_sg.id
+}
+
+
 ##### JENKINS MASTER SECURITY GROUP
 
 resource "aws_security_group" "jenkins_master_sg" {
@@ -208,7 +237,13 @@ module "jenkins_master_ec2" {
 ##### CREATE JENKINS.YAML CASC
 
 resource "local_file" "foo" {
-  content  = templatefile("templates/jenkins-casc.yaml.tpl", {jenkins-slave-key = aws_secretsmanager_secret.jenkins_slave_key.name})
+  content  = templatefile("templates/jenkins-casc.yaml.tpl", {
+    jenkins-slave-key = aws_secretsmanager_secret.jenkins_slave_key.name
+    aws-current-region = data.aws_region.current.name
+    jenkins-agents-subnet-ids = join(" ", var.jenkins_agents_subnet_ids)
+    jenkins-agent-security-group = aws_security_group.jenkins_agent_sg.id
+    }
+  )
   filename = "jenkins.yaml"
 }
 

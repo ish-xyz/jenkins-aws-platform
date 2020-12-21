@@ -36,7 +36,7 @@
         {
             "type": "shell",
             "inline": [
-                "sudo yum update -y",
+                "sudo yum update -y --security",
                 "sudo amazon-linux-extras install ansible2 -y"
             ]
         },
