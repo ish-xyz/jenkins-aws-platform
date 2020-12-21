@@ -28,3 +28,8 @@ variable "jenkins_master_ssh_user" {
   type    = string
   default = "ec2-user"
 }
+
+variable "jenkins_agent_vpc_id" {
+    type = string
+    default = "vpc-f670c791"
+}
