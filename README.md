@@ -122,6 +122,8 @@ aws secretsmanager create-secret --name 'jenkins-master-admin-user' --secret-str
 ./run.sh create-image master
 ```
 
+- **IMPORTANT: Edit the file `terraform/variables.tf` with "your AWS account values"**
+
 - Deploy Jenkins. Running the following command will execute a `terraform apply` on the terraform folder.
 ```
 ./run.sh deploy
