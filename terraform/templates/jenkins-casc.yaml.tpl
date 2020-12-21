@@ -29,6 +29,22 @@ jenkins:
   agentProtocols:
     - "jnlp2"
   clouds:
+  - amazonEC2:
+      cloudName: default-agent
+      useInstanceProfileForCredentials: true
+      sshKeysCredentialsId: jenkins-agent-key-pair
+      region: ${aws_default_region}
+      templates:
+      - type: T2Medium
+        description: "AWS default agent"
+        #"sub1 sub2 sub3" 
+        subnetId: ${jenkins-agents-subnet-ids}
+        securityGroups: ${jenkins-agent-security-group}
+        monitoring: false
+        minimumNumberOfSpareInstances: 1
+        connectionStrategy: PRIVATE_IP
+        HostKeyVerificationStrategyEnum: off 
+
 
 credentials:
   system:
@@ -42,7 +58,7 @@ credentials:
               description: "Jenkins Agent SSH key pair"
               privateKeySource:
                 directEntry:
-                  privateKey: ${jenkins-slave-key}
+                  privateKey: $${${jenkins-slave-key}}
 unclassified:
     gitHubConfiguration:
       apiRateLimitChecker: ThrottleForNormalize

@@ -88,8 +88,7 @@ The Jenkins Clouds is configured here: $URL
 ### Requirements:
 
 * Docker >= 20.10.0
-* AWS CLI Installed and configured
-
+* AWS CLI Installed and configured (Tested with aws-cli/2.1.13)
 
 
 - Create AWS keys with admin access & clone this repo:
@@ -117,18 +116,18 @@ source .credz
 aws secretsmanager create-secret --name 'jenkins-master-admin-user' --secret-string 'admin-password' 
 ```
 
-- Create the Jenkins master image with Docker + Packer:
+- Create the Jenkins master image. To do build the image I've prepared a custom script which creates a docker container and runs Packer within it.
 
 ```
 ./run.sh create-image master
 ```
 
-- Deploy Jenkins with Docker + Terraform:
+- Deploy Jenkins. Running the following command will execute a `terraform apply` on the terraform folder.
 ```
 ./run.sh deploy
 ```
 
-- Destroy the infrastructure with Docker + Terraform:
+- Destroy the infrastructure. Running the following command will execute a `terraform destroy` on the terraform folder.
 
 ```
 ./run.sh destroy
@@ -142,13 +141,14 @@ aws secretsmanager create-secret --name 'jenkins-master-admin-user' --secret-str
 
 ### What's missing for a production-ready setup?
 
-* IAM Role/Policy
-* TLS Certificate
-* Security Hardening
-* Review plugins security issues
-* Improve Jenkins authentication
+* A more strict IAM Role & Policy
+* There's no TLS Certificate
+* AMI used have no security hardening
+* You may want to do a review of the installed plugins and related security issues.
+* Jenkins authentication should be an external user management system (ldap, oauth, etc.)
 
 ## TODO
 
 - Configure Jclouds
 - Jenkins Agent AMI Packer config
+- Use jenkins CLI to install plugins
