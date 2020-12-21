@@ -71,7 +71,7 @@ Terraform will perform the following actions:
 <br><br><br>
 
 
-### JClouds (not implemented in CASC yet)
+### JClouds
 
 Using clouds, a Jenkins 2 functionality, Jenkins will be able to deploy agents on-demand and destroy them when they're not needed, **automatically**.
 
@@ -83,7 +83,7 @@ The Jenkins Clouds is configured here: $URL
 <br><br><br>
 
 
-## Tutorial
+## Getting started
 
 ### Requirements:
 
@@ -91,11 +91,14 @@ The Jenkins Clouds is configured here: $URL
 * AWS CLI Installed and configured (Tested with aws-cli/2.1.13)
 
 
+### Tutorial
+
 - Create AWS keys with admin access & clone this repo:
 
 ```
 git clone https://github.com/ish-xyz/jenkins-aws-platform.git ~/jenkins-aws-platform
 ```
+<br>
 
 - Create a file called ~/jenkins-aws-platform/.credz:
 
@@ -103,10 +106,11 @@ git clone https://github.com/ish-xyz/jenkins-aws-platform.git ~/jenkins-aws-plat
 vi ~/jenkins-aws-platform/.credz
 ```
 ```
-export AWS_SECRET_ACCESS_KEY={{ CHANGE_ME }} <- early-created-aws-credential
-export AWS_ACCESS_KEY_ID={{ CHANGE_ME }} <- early-created-aws-credential
+export AWS_SECRET_ACCESS_KEY={{ CHANGE_ME }} <- aws-credential
+export AWS_ACCESS_KEY_ID={{ CHANGE_ME }} <- aws-credential
 export AWS_DEFAULT_REGION=eu-west-1
 ```
+<br>
 
 - Run the following command to create your Jenkins admin password:
 
@@ -115,19 +119,23 @@ cd ~/jenkins-aws-platform
 source .credz
 aws secretsmanager create-secret --name 'jenkins-master-admin-user' --secret-string 'admin-password' 
 ```
+<br>
 
 - Create the Jenkins master image. To do build the image I've prepared a custom script which creates a docker container and runs Packer within it.
 
 ```
 ./run.sh create-image master
 ```
+<br>
 
-- **IMPORTANT: Edit the file `terraform/variables.tf` with "your AWS account values"**
+- **IMPORTANT**: Edit the file `terraform/variables.tf` with "your AWS account values"
+<br><br>
 
 - Deploy Jenkins. Running the following command will execute a `terraform apply` on the terraform folder.
 ```
 ./run.sh deploy
 ```
+<br>
 
 - Destroy the infrastructure. Running the following command will execute a `terraform destroy` on the terraform folder.
 
@@ -151,6 +159,6 @@ aws secretsmanager create-secret --name 'jenkins-master-admin-user' --secret-str
 
 ## TODO
 
-- Configure Jclouds
+- Configure Jclouds (WIP)
 - Jenkins Agent AMI Packer config
 - Use jenkins CLI to install plugins
