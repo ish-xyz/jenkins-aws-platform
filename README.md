@@ -24,16 +24,22 @@ Packer is used to build the images (Jenkins master and agent AMIs) and Terraform
 <br><br>
 
 ### Jenkins Master: AMI creation with Packer + Ansible
+<br>
 
-With the code defined in `/images/master` packer will create a new AMI with our Jenkins Master and its dependencies pre-configured in it.
+!["image"](./assets/packer-ci.png)
 
-When you run `./run.sh create-image master` a Docker image with packer in it will be created and Packer will:
+<br>
+With the code defined in `/images/*/` packer will create a new AMI with our Jenkins Master (or Agent) and its dependencies pre-configured in it.
 
-1. Create a temporary instance
+When you run `./run.sh create-image master` a Docker image with packer in it will be created and execute Packer, which will:
+
+1. Create a temporary EC2 instance
 2. Connect to the instance and execute the ansible playbook defined here -> `/images/master/ansible/playbook`
-3. Save a new AMI from the early configured EC2 Instance and destroy it.
-4. It will output some metadata to a file called `/images/master/manifest.json`
+3. Save a new AMI from the configured EC2 and destroy the instance.
+4. Output some metadata to a file called `/images/master/manifest.json`
 <br><br><br>
+
+**NOTE**: The same logic is applied for the Jenkins Agent AMI.
 
 ### Jenkins CASC:
 
@@ -47,6 +53,9 @@ In this example, a seed job is a Jenkins freestyle job that can create other job
 
 
 ### Jenkins Master: Infrastructure provisioning with Terraform
+<br>
+
+!["image"](./assets/terraform-cd.png)
 
 If you know Terraform already, I have done nothing out of the ordinary here.
 
@@ -142,23 +151,25 @@ aws secretsmanager create-secret --name 'jenkins-master-admin-user' --secret-str
 ```
 ./run.sh destroy
 ```
-<br><br><br>
+<br><br>
 
 ## Considerations
+<br>
 
-### Pros & Cons
-- TODO
+### Is this demo production-ready?
+<br>
 
-### What's missing for a production-ready setup?
+Short answer: no. The porpuse of this demo is to give you an idea on how to innovate your Jenkins setup and ensure reliability through automation. There are several missing parts in this installation, but I do believe it's a good starting point for everyone. Here some of the things you may want to improve before using this code in production:
 
-* A more strict IAM Role & Policy
-* There's no TLS Certificate
-* AMI used have no security hardening
-* You may want to do a review of the installed plugins and related security issues.
-* Jenkins authentication should be an external user management system (ldap, oauth, etc.)
-
+1. A more strict IAM Role & Policy
+2. There's no TLS Certificate
+3. AMI used have no security hardening
+4. You may want to do a review of the installed plugins and related security issues.
+4. Jenkins authentication should be an external user management system (ldap, oauth, etc.)
+5. To Keep this demo as simple as possible I have used a script to orchestrate Packer & Terraform. Ideally you should orchestrate your CI/CD workflows from a proper CI/CD tool (Yes, even if you're deploying your CI/CD platform :D).
+6. Remove agents
 ## TODO
 
 - Configure Jclouds (WIP)
-- Jenkins Agent AMI Packer config
+- Jenkins Agent AMI Packer config (WIP)
 - Use jenkins CLI to install plugins
