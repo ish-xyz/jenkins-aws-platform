@@ -213,30 +213,29 @@ resource "aws_security_group_rule" "jenkins_master_egress_all" {
 
 ##### JENKINS MASTER EC2 INSTANCE
 
-module "jenkins_master_ec2" {
-  source  = "terraform-aws-modules/ec2-instance/aws"
-  version = "~> 2.0"
+resource "aws_instance" "jenkins_master_instance" {
 
-  name           = "jenkins_master"
-  instance_count = 1
+  depends_on                  = [null_resource.remove_agents]
 
   ami                         = var.jenkins_master_ami
   instance_type               = var.jenkins_master_instance_type
+  subnet_id                   = var.jenkins_master_subnet_id
   key_name                    = aws_key_pair.jenkins_master.key_name
   monitoring                  = true
-  associate_public_ip_address = true
-  iam_instance_profile        = aws_iam_instance_profile.jenkins_master_instance_profile.name
   vpc_security_group_ids      = [aws_security_group.jenkins_master_sg.id]
-  subnet_id                   = var.jenkins_master_subnet_id
+  iam_instance_profile        = aws_iam_instance_profile.jenkins_master_instance_profile.name
+  associate_public_ip_address = true
+  #ebs_optimized               = true
 
   tags = {
     Name       = "jenkins_master"
     created_by = "terraform"
   }
 }
+
 ##### CREATE JENKINS.YAML CASC
 
-resource "local_file" "foo" {
+resource "local_file" "jenkins_casc" {
   content = templatefile("templates/jenkins-casc.yaml.tpl", {
     jenkins-slave-key            = aws_secretsmanager_secret.jenkins_slave_key.name
     aws-current-region           = data.aws_region.current.name
@@ -248,30 +247,11 @@ resource "local_file" "foo" {
   filename = "jenkins.yaml"
 }
 
-##### NULL-PROVISIONER TO FORCE DESTROY AGENTS
-
-resource "null_resource" "destroy_agents" {
-
-  depends_on = [module.jenkins_master_ec2]
-
-  connection {
-    type        = "ssh"
-    host        = flatten(module.jenkins_master_ec2.public_ip)[0]
-    user        = var.jenkins_master_ssh_user
-    private_key = tls_private_key.jenkins_master.private_key_pem
-  }
-
-  provisioner "remote-exec" {
-    when = destroy
-    inline = [
-      "aws ec2 --region=eu-west-1 terminate-instances --instance-ids $(aws ec2 describe-instances --filter 'Name=tag:jenkins_slave_type,Values=*' --query 'Reservations[].Instances[].[InstanceId,Tags[?Key==`Name`].Value[]]' --output text)",
-    ]
-  }
-}
-
 ##### IMPORT CASC CONFIGURATION AND RESTART JENKINS
 resource "null_resource" "jenkins_master_configuration" {
   # Bootstrap Jenkins
+
+  depends_on = [local_file.jenkins_casc]
 
   triggers = {
     id = uuid()
@@ -279,7 +259,7 @@ resource "null_resource" "jenkins_master_configuration" {
 
   connection {
     type        = "ssh"
-    host        = flatten(module.jenkins_master_ec2.public_ip)[0]
+    host        = aws_instance.jenkins_master_instance.public_ip
     user        = var.jenkins_master_ssh_user
     private_key = tls_private_key.jenkins_master.private_key_pem
   }
@@ -298,6 +278,14 @@ resource "null_resource" "jenkins_master_configuration" {
   }
 }
 
+resource "null_resource" "remove_agents" {
+
+  provisioner "local-exec" {
+    when = destroy
+    command = "aws ec2 terminate-instances --instance-ids $(aws ec2 describe-instances --filter 'Name=tag:jenkins_slave_type,Values=*' --query 'Reservations[].Instances[].[InstanceId,Tags[?Key==`Name`].Value[]]' --output text)"
+  }
+}
+
 ##### DEBUG
 resource "local_file" "jenkins_master_keyfile" {
   content  = tls_private_key.jenkins_master.private_key_pem
@@ -305,7 +293,7 @@ resource "local_file" "jenkins_master_keyfile" {
 }
 
 output "instance_ip_addr" {
-  value = element(module.jenkins_master_ec2[*].public_ip, 0)
+  value = aws_instance.jenkins_master_instance.public_ip
 }
 
 output "ssh_user" {

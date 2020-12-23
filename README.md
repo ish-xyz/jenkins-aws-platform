@@ -167,7 +167,9 @@ Short answer: no. The porpuse of this demo is to give you an idea on how to inno
 4. You may want to do a review of the installed plugins and related security issues.
 4. Jenkins authentication should be an external user management system (ldap, oauth, etc.)
 5. To Keep this demo as simple as possible I have used a script to orchestrate Packer & Terraform. Ideally you should orchestrate your CI/CD workflows from a proper CI/CD tool (Yes, even if you're deploying your CI/CD platform :D).
-6. Remove agents
+6. At the moment I'm using a workaround to remove the agents when I run `terraform destroy`. Ideally, you'd have to make Terraform interact with Jenkins to tear down the whole infrastructure or code a self-destruct system into the agents (The second option is preferred, in my opinion).
+7. Terraform is not using any remote backend. I strongly advice to use a remote state file instead of the local one for a production implementation.
+
 ## TODO
 
 - Configure Jclouds (WIP)
