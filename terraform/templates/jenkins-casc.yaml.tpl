@@ -40,6 +40,7 @@ jenkins:
         description: "AWS default agent"
         #"sub1 sub2 sub3" 
         subnetId: "${jenkins-agents-subnet-ids}"
+        remoteAdmin: ec2-user
         securityGroups: "${jenkins-agent-security-group}"
         monitoring: false
         minimumNumberOfSpareInstances: 0

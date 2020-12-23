@@ -1,0 +1,23 @@
+---
+- name: Jenkins Agent AMI provisioning
+  hosts: all
+  become: true
+  tasks:
+
+  # - name: Add Jenkins repo to yum
+  #   get_url:
+  #     url: https://pkg.jenkins.io/redhat-stable/jenkins.repo
+  #     dest: /etc/yum.repos.d/jenkins.repo
+  #     force_basic_auth: yes
+
+  # - name: Import Jenkins repo key
+  #   rpm_key:
+  #     state: present
+  #     key: https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+
+  - name: YUM install jenkins
+    yum:
+      name:
+        - java-1.8.0-openjdk
+        - git
+      state: present

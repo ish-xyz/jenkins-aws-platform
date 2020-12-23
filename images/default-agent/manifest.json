@@ -1,0 +1,23 @@
+{
+  "builds": [
+    {
+      "name": "amazon-ebs",
+      "builder_type": "amazon-ebs",
+      "build_time": 1608763788,
+      "files": null,
+      "artifact_id": "eu-west-1:ami-023e91aa375a54f77",
+      "packer_run_uuid": "d6c86f1b-1f36-41d9-453a-8aeb860961dd",
+      "custom_data": null
+    },
+    {
+      "name": "amazon-ebs",
+      "builder_type": "amazon-ebs",
+      "build_time": 1608764192,
+      "files": null,
+      "artifact_id": "eu-west-1:ami-0c54188319d5a755f",
+      "packer_run_uuid": "dcbe0484-436a-2daa-e993-fefbf4a05d3c",
+      "custom_data": null
+    }
+  ],
+  "last_run_uuid": "dcbe0484-436a-2daa-e993-fefbf4a05d3c"
+}
