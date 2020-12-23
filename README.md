@@ -172,6 +172,5 @@ Short answer: no. The porpuse of this demo is to give you an idea on how to inno
 
 ## TODO
 
-- Configure Jclouds (WIP)
-- Jenkins Agent AMI Packer config (WIP)
+- Multi clouds configuration
 - Use jenkins CLI to install plugins
