@@ -37,17 +37,16 @@ create-image() {
 
 run_terraform() {
     JENKINS_MASTER_AMI_ID=$(cat images/master/manifest.json | jq '.builds | last | .artifact_id' | awk -F ":" {'print $2'} | awk -F '"' {'print $1'})
+    JENKINS_DEFAULT_AGENT_AMI_ID=$(cat images/default-agent/manifest.json | jq '.builds | last | .artifact_id' | awk -F ":" {'print $2'} | awk -F '"' {'print $1'})
     docker run \
         -v $(pwd)/terraform:/mnt/terraform \
         -e AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION} \
         -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
         -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
         --rm \
-        hashitools:local sh -c "cd /mnt/terraform && terraform init && terraform $1 -var=\"jenkins_master_ami=${JENKINS_MASTER_AMI_ID}\" -auto-approve"
-}
-
-destroy_agents() {
-    echo "TODO"
+        hashitools:local sh -c "cd /mnt/terraform && terraform init && terraform $1 \
+        -var=\"jenkins_agent_ami_id=${JENKINS_DEFAULT_AGENT_AMI_ID}\" \
+        -var=\"jenkins_master_ami=${JENKINS_MASTER_AMI_ID}\" -auto-approve"
 }
 
 main() {

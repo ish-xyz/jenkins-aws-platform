@@ -35,5 +35,4 @@ variable "jenkins_agent_subnet_ids" {
 
 variable "jenkins_agent_ami_id" {
   type    = string
-  default = "ami-0ce1e3f77cd41957e"
 }

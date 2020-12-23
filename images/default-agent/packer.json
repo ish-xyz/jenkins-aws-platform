@@ -1,0 +1,50 @@
+{
+    "variables": {
+      "aws_region": "eu-west-1",
+      "aws_ami_image": "ami-0ce1e3f77cd41957e",
+      "aws_instance_type": "t2.medium",
+      "magic_reference_date": "2020-12-16 20-12-07"
+    },
+    "builders": [
+      {
+        "type": "amazon-ebs",
+        "region": "{{user `aws_region`}}",
+        "source_ami": "{{user `aws_ami_image`}}",
+        "instance_type": "{{user `aws_instance_type`}}",
+        "ssh_username": "ec2-user",
+        "ami_name": "jenkins-linux2-{{ isotime | clean_resource_name }}",
+        "tags": {
+          "Name": "jenkins-linux2-{{ isotime | clean_resource_name }}",
+          "OS_Version": "Amazon Linux 2",
+          "Release": "2",
+          "Description": "Amazon Linux 2 - Jenkins master",
+          "packer": "true"
+        }
+      }
+    ],
+    "provisioners": [
+        {
+            "type": "file",
+            "source": "ansible",
+            "destination": "/tmp/ansible"
+        },
+        {
+            "type": "shell",
+            "inline": [
+                "sudo yum update -y --security",
+                "sudo amazon-linux-extras install ansible2 -y"
+            ]
+        },
+        {
+            "type":            "ansible-local",
+            "playbook_file":   "ansible/playbook.yaml"
+        }
+    ],
+    "post-processors": [
+      {
+        "type": "manifest",
+        "output": "manifest.json",
+        "strip_path": true
+      }
+    ]
+  }
