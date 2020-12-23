@@ -237,25 +237,45 @@ module "jenkins_master_ec2" {
 ##### CREATE JENKINS.YAML CASC
 
 resource "local_file" "foo" {
-  content  = templatefile("templates/jenkins-casc.yaml.tpl", {
-    jenkins-slave-key = aws_secretsmanager_secret.jenkins_slave_key.name
-    aws-current-region = data.aws_region.current.name
-    jenkins-agents-subnet-ids = join(" ", var.jenkins_agents_subnet_ids)
+  content = templatefile("templates/jenkins-casc.yaml.tpl", {
+    jenkins-slave-key            = aws_secretsmanager_secret.jenkins_slave_key.name
+    aws-current-region           = data.aws_region.current.name
+    jenkins-agents-subnet-ids    = join(" ", var.jenkins_agent_subnet_ids)
     jenkins-agent-security-group = aws_security_group.jenkins_agent_sg.id
+    jenkins-agent-ami-id         = var.jenkins_agent_ami_id
     }
   )
   filename = "jenkins.yaml"
 }
 
-##### IMPORT CASC CONFIGURATION AND RESTART JENKINS
+##### NULL-PROVISIONER TO FORCE DESTROY AGENTS
 
+resource "null_resource" "destroy_agents" {
+
+  depends_on = [module.jenkins_master_ec2]
+
+  connection {
+    type        = "ssh"
+    host        = flatten(module.jenkins_master_ec2.public_ip)[0]
+    user        = var.jenkins_master_ssh_user
+    private_key = tls_private_key.jenkins_master.private_key_pem
+  }
+
+  provisioner "remote-exec" {
+    when = destroy
+    inline = [
+      "aws ec2 --region=eu-west-1 terminate-instances --instance-ids $(aws ec2 describe-instances --filter 'Name=tag:jenkins_slave_type,Values=*' --query 'Reservations[].Instances[].[InstanceId,Tags[?Key==`Name`].Value[]]' --output text)",
+    ]
+  }
+}
+
+##### IMPORT CASC CONFIGURATION AND RESTART JENKINS
 resource "null_resource" "jenkins_master_configuration" {
   # Bootstrap Jenkins
 
   triggers = {
     id = uuid()
   }
-
 
   connection {
     type        = "ssh"

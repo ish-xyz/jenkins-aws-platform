@@ -1,17 +1,12 @@
 ###### VARIABLES
 
 variable "jenkins_master_ami" {
-  type    = string
+  type = string
 }
 
 variable "jenkins_master_subnet_id" {
   type    = string
   default = "subnet-6c9a2b25"
-}
-
-variable "jenkins_agents_subnet_ids" {
-  type = list(string)
-  default = ["subnet-6c9a2b25"]
 }
 
 variable "jenkins_master_vpc_id" {
@@ -30,6 +25,15 @@ variable "jenkins_master_ssh_user" {
 }
 
 variable "jenkins_agent_vpc_id" {
-    type = string
-    default = "vpc-f670c791"
+  type    = string
+  default = "vpc-f670c791"
+}
+variable "jenkins_agent_subnet_ids" {
+  type    = list(string)
+  default = ["subnet-6c9a2b25"]
+}
+
+variable "jenkins_agent_ami_id" {
+  type    = string
+  default = "ami-0ce1e3f77cd41957e"
 }

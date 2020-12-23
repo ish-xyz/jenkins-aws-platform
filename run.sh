@@ -46,6 +46,10 @@ run_terraform() {
         hashitools:local sh -c "cd /mnt/terraform && terraform init && terraform $1 -var=\"jenkins_master_ami=${JENKINS_MASTER_AMI_ID}\" -auto-approve"
 }
 
+destroy_agents() {
+    echo "TODO"
+}
+
 main() {
     . .credz
     if [[ $1 == "create-image" ]]; then 
