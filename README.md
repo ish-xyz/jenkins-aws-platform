@@ -137,6 +137,12 @@ aws secretsmanager create-secret --name 'jenkins-master-admin-user' --secret-str
 ```
 <br>
 
+- Create the Jenkins slave image:
+
+```
+./run.sh create-image agents/default
+```
+
 - **IMPORTANT**: Edit the file `terraform/variables.tf` with "your AWS account values"
 <br><br>
 
@@ -172,5 +178,4 @@ Short answer: no. The porpuse of this demo is to give you an idea on how to inno
 
 ## TODO
 
-- Multi clouds configuration
 - Use jenkins CLI to install plugins

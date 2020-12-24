@@ -117,7 +117,7 @@ resource "aws_iam_instance_profile" "jenkins_master_instance_profile" {
 resource "aws_security_group" "jenkins_agent_sg" {
   name        = "jenkins_agent_sg"
   description = "Allow HTTP/HTTPS/SSH to 0.0.0.0 and all egress connections"
-  vpc_id      = var.jenkins_agent_vpc_id
+  vpc_id      = var.jenkins_agent_default_vpc_id
 
   tags = {
     Name = "jenkins_agent_sg"
@@ -279,7 +279,7 @@ resource "null_resource" "remove_agents" {
 
   provisioner "local-exec" {
     when    = destroy
-    command = "aws ec2 terminate-instances --instance-ids $(aws ec2 describe-instances --filter 'Name=tag:jenkins_slave_type,Values=*' --query 'Reservations[].Instances[].[InstanceId,Tags[?Key==`Name`].Value[]]' --output text)"
+    command = "aws ec2 terminate-instances --instance-ids $(aws ec2 describe-instances --filter 'Name=tag:jenkins_slave_type,Values=*' --query 'Reservations[].Instances[].[InstanceId,Tags[?Key==`Name`].Value[]]' --output text) || true"
   }
 }
 
