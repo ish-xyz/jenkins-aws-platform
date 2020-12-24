@@ -1,10 +1,6 @@
 #!/bin/bash
 set -e
 
-build() {
-    docker build -t hashitools:local .
-}
-
 helper() {
     echo """
 usage: ./run.sh
@@ -20,12 +16,23 @@ help    - Shows this help message
 """
 }
 
-create-image() {
+build_docker_image() {
+    docker build -t hashitools:local .
+}
+
+get_ami_id() {
+    cat $1 | jq '.builds | last | .artifact_id' | awk -F ":" {'print $2'} | awk -F '"' {'print $1'}
+}
+
+run_packer() {
+
+    # Check if the Packer dir exist
     if ! [[ -d "./images/${1}" ]]; then
         echo "No such file or directory: ./images/${1}"
         exit 1
     fi
 
+    # Run Packer
     docker run \
         -v $(pwd)/images/${1}:/mnt/packer \
         -e AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION} \
@@ -35,20 +42,17 @@ create-image() {
         hashitools:local sh -c "cd /mnt/packer && packer build packer.json"
 }
 
-get_ami_id() {
-    cat $1 | jq '.builds | last | .artifact_id' | awk -F ":" {'print $2'} | awk -F '"' {'print $1'}
-}
-
 run_terraform() {
 
+    # Building Terraform arguments
     tf_args="-var=\"jenkins_master_ami=$(get_ami_id images/master/manifest.json)\""
     for agent_ami in $(ls images/agents/); do
         ami_id=$(get_ami_id images/agents/${agent_ami}/manifest.json)
         tf_args="${tf_args} -var=\"${agent_ami}_agent_ami=${ami_id}\""
     done
-
     tf_args="${tf_args} -auto-approve"
     
+    # Run Terraform
     docker run \
         -v $(pwd)/terraform:/mnt/terraform \
         -e AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION} \
@@ -59,15 +63,17 @@ run_terraform() {
 }
 
 main() {
+    # Load credentials
     . .credz
+
     if [[ $1 == "create-image" ]]; then 
-        build
-        create-image $2
+        build_docker_image
+        run_packer $2
     elif [[ $1 == "deploy" ]]; then
-        build
+        build_docker_image
         run_terraform apply
     elif [[ $1 == "destroy" ]]; then
-        build
+        build_docker_image
         run_terraform destroy
     else
         helper
