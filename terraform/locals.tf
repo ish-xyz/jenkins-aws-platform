@@ -1,5 +1,5 @@
 locals {
-  agents = <<EOT
+  agents_yaml = <<EOT
   - amazonEC2:
       cloudName: default-agent
       useInstanceProfileForCredentials: true
