@@ -35,18 +35,27 @@ create-image() {
         hashitools:local sh -c "cd /mnt/packer && packer build packer.json"
 }
 
+get_ami_id() {
+    cat $1 | jq '.builds | last | .artifact_id' | awk -F ":" {'print $2'} | awk -F '"' {'print $1'}
+}
+
 run_terraform() {
-    JENKINS_MASTER_AMI_ID=$(cat images/master/manifest.json | jq '.builds | last | .artifact_id' | awk -F ":" {'print $2'} | awk -F '"' {'print $1'})
-    JENKINS_DEFAULT_AGENT_AMI_ID=$(cat images/default-agent/manifest.json | jq '.builds | last | .artifact_id' | awk -F ":" {'print $2'} | awk -F '"' {'print $1'})
+
+    tf_args="-var=\"jenkins_master_ami=$(get_ami_id images/master/manifest.json)\""
+    for agent_ami in $(ls images/agents/); do
+        ami_id=$(get_ami_id images/agents/${agent_ami}/manifest.json)
+        tf_args="${tf_args} -var=\"jenkins_agent_${agent_ami}_ami=${ami_id}\""
+    done
+
+    tf_args="${tf_args} -auto-approve"
+    
     docker run \
         -v $(pwd)/terraform:/mnt/terraform \
         -e AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION} \
         -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
         -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
         --rm \
-        hashitools:local sh -c "cd /mnt/terraform && terraform init && terraform $1 \
-        -var=\"jenkins_agent_ami_id=${JENKINS_DEFAULT_AGENT_AMI_ID}\" \
-        -var=\"jenkins_master_ami=${JENKINS_MASTER_AMI_ID}\" -auto-approve"
+        hashitools:local sh -c "cd /mnt/terraform && terraform init && terraform $1 $tf_args"
 }
 
 main() {

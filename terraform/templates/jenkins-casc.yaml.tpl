@@ -29,7 +29,7 @@ jenkins:
   agentProtocols:
     - "jnlp2"
   clouds:
-  ${agents}
+${agents}
 
 
 credentials:
