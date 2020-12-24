@@ -4,3 +4,4 @@ terraform/.terraform
 terraform/jenkins-master.pem
 terraform/jenkins.yaml
 terraform/.terraform.tfstate.lock.info
+terraform/files/*
