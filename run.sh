@@ -44,7 +44,7 @@ run_terraform() {
     tf_args="-var=\"jenkins_master_ami=$(get_ami_id images/master/manifest.json)\""
     for agent_ami in $(ls images/agents/); do
         ami_id=$(get_ami_id images/agents/${agent_ami}/manifest.json)
-        tf_args="${tf_args} -var=\"jenkins_agent_${agent_ami}_ami=${ami_id}\""
+        tf_args="${tf_args} -var=\"${agent_ami}_agent_ami=${ami_id}\""
     done
 
     tf_args="${tf_args} -auto-approve"
