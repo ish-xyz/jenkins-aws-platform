@@ -34,5 +34,27 @@ variable "jenkins_agent_subnet_ids" {
 }
 
 variable "jenkins_agent_ami_id" {
-  type    = string
+  type = string
+}
+
+locals {
+  agents = <<EOT
+- amazonEC2:
+    cloudName: default-agent
+    useInstanceProfileForCredentials: true
+    sshKeysCredentialsId: jenkins-agent-key-pair
+    region: "eu-west-1"
+    templates:
+    - type: "T2Medium"
+      ami: "${var.jenkins_agent_ami_id}"
+      description: "AWS default agent"
+      #"sub1 sub2 sub3" 
+      subnetId: "subnet-6c9a2b25"
+      remoteAdmin: ec2-user
+      securityGroups: "${aws_security_group.jenkins_agent_sg.id}"
+      monitoring: false
+      minimumNumberOfSpareInstances: 0
+      connectionStrategy: PRIVATE_IP
+      associatePublicIp: false
+  EOT
 }

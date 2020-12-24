@@ -215,7 +215,7 @@ resource "aws_security_group_rule" "jenkins_master_egress_all" {
 
 resource "aws_instance" "jenkins_master_instance" {
 
-  depends_on                  = [null_resource.remove_agents]
+  depends_on = [null_resource.remove_agents]
 
   ami                         = var.jenkins_master_ami
   instance_type               = var.jenkins_master_instance_type
@@ -237,11 +237,8 @@ resource "aws_instance" "jenkins_master_instance" {
 
 resource "local_file" "jenkins_casc" {
   content = templatefile("templates/jenkins-casc.yaml.tpl", {
-    jenkins-slave-key            = aws_secretsmanager_secret.jenkins_slave_key.name
-    aws-current-region           = data.aws_region.current.name
-    jenkins-agents-subnet-ids    = join(" ", var.jenkins_agent_subnet_ids)
-    jenkins-agent-security-group = aws_security_group.jenkins_agent_sg.id
-    jenkins-agent-ami-id         = var.jenkins_agent_ami_id
+    jenkins-slave-key = aws_secretsmanager_secret.jenkins_slave_key.name
+    agents            = local.agents
     }
   )
   filename = "jenkins.yaml"
@@ -281,7 +278,7 @@ resource "null_resource" "jenkins_master_configuration" {
 resource "null_resource" "remove_agents" {
 
   provisioner "local-exec" {
-    when = destroy
+    when    = destroy
     command = "aws ec2 terminate-instances --instance-ids $(aws ec2 describe-instances --filter 'Name=tag:jenkins_slave_type,Values=*' --query 'Reservations[].Instances[].[InstanceId,Tags[?Key==`Name`].Value[]]' --output text)"
   }
 }
