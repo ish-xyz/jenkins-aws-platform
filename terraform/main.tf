@@ -174,7 +174,6 @@ resource "aws_instance" "jenkins_master_instance" {
   vpc_security_group_ids      = [aws_security_group.jenkins_master_sg.id]
   iam_instance_profile        = aws_iam_instance_profile.jenkins_master_instance_profile.name
   associate_public_ip_address = true
-  #ebs_optimized               = true
 
   tags = {
     Name       = "jenkins_master"
@@ -187,10 +186,10 @@ resource "aws_instance" "jenkins_master_instance" {
 resource "local_file" "jenkins_casc" {
   content = templatefile("templates/jenkins-casc.yaml.tpl", {
     jenkins-slave-key = aws_secretsmanager_secret.jenkins_slave_key.name
-    agents            = local.agents
+    agents            = local.agents_yaml
     }
   )
-  filename = "jenkins.yaml"
+  filename = "files/jenkins.yaml"
 }
 
 ##### IMPORT CASC CONFIGURATION AND RESTART JENKINS
@@ -211,7 +210,7 @@ resource "null_resource" "jenkins_master_configuration" {
   }
 
   provisioner "file" {
-    source      = "jenkins.yaml"
+    source      = "files/jenkins.yaml"
     destination = "/tmp/jenkins.yaml"
   }
 
@@ -233,9 +232,10 @@ resource "null_resource" "remove_agents" {
 }
 
 ##### DEBUG
+
 resource "local_file" "jenkins_master_keyfile" {
   content  = tls_private_key.jenkins_master.private_key_pem
-  filename = "${path.module}/jenkins-master.pem"
+  filename = "${path.module}/files/jenkins-master.pem"
 }
 
 output "instance_ip_addr" {
@@ -247,5 +247,5 @@ output "ssh_user" {
 }
 
 output "ssh_keyfile" {
-  value = "${path.module}/jenkins-master.pem"
+  value = "${path.module}/files/jenkins-master.pem"
 }

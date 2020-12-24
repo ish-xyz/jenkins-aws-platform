@@ -1,3 +1,5 @@
+##### DEFAULT AGENT VARIABLES
+
 variable "default_agent_vpc_id" {
   type    = string
   default = "vpc-f670c791"
@@ -7,7 +9,7 @@ variable "default_agent_ami" {
   type = string
 }
 
-##### JENKINS AGENTS SECURITY GROUP
+##### DEFAULT AGENT SECURITY GROUP
 
 resource "aws_security_group" "default_agent_sg" {
   name        = "jenkins_agent_sg"

@@ -9,7 +9,7 @@ helper() {
     echo """
 usage: ./run.sh
     
-create-image {{ image_folder_name }} - Create the Jenkins AMI
+create-image {{ image_folder_name }} - Create the Jenkins AMIs
 
 deploy  - Create the infrastructure
 
