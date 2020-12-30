@@ -14,6 +14,7 @@ locals {
         remoteAdmin: ec2-user
         securityGroups: "${aws_security_group.default_agent_sg.id}"
         monitoring: false
+        hostKeyVerificationStrategy: ACCEPT_NEW
         minimumNumberOfSpareInstances: 0
         connectionStrategy: PRIVATE_IP
         associatePublicIp: false

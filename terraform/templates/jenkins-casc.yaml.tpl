@@ -11,8 +11,15 @@ jenkins:
     globalMatrix:
       permissions:
       - "Overall/Administer:admin"
-      - "Overall/Administer:admin"
       - "Overall/Read:authenticated"
+      - "Credentials/View:authenticated"
+      - "Job/Build:authenticated"
+      - "Job/Cancel:authenticated"
+      - "Job/Read:authenticated"
+      - "Metrics/HealthCheck:authenticated"
+      - "Run/Replay:authenticated"
+      - "Run/Update:authenticated"
+      - "SCM/Tag:authenticated"
   nodes:
     - permanent:
         name: "static-agent"
@@ -64,9 +71,6 @@ unclassified:
       elements:
       - cssUrl:
           url: "https://cdn.rawgit.com/afonsof/jenkins-material-theme/gh-pages/dist/material-green.css"
-    slackNotifier:
-      teamDomain: justeat
-      tokenCredentialId: SLACK_TOKEN
 security:
   apiToken:
     creationOfLegacyTokenEnabled: false
