@@ -9,7 +9,6 @@ authentication-tokens:1.4
 bootstrap4-api:4.5.3-1
 bouncycastle-api:2.18
 branch-api:2.6.1
-build-pipeline-plugin:1.5.8
 build-user-vars-plugin:1.6
 checks-api:1.1.0
 cloudbees-bitbucket-branch-source:2.9.4
@@ -29,14 +28,11 @@ dtkit-api:2.2.1
 durable-task:1.35
 echarts-api:4.9.0-2
 embeddable-build-status:2.0.3
-envinject-api:1.7
-envinject:2.3.0
 extended-choice-parameter:0.82
 extended-read-permission:3.2
 external-monitor-job:1.7
 favorite:2.3.2
 font-awesome-api:5.15.1-1
-ghprb:1.42.1
 git-client:3.5.1
 git-parameter:0.9.13
 git-server:1.9
