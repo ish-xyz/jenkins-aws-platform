@@ -1,6 +1,3 @@
-## Work in progress - expect incorrect docs and flaky workflows :D 
-----
-
 ## BRIEF DESCRIPTION
 
 This repository contains the infrastructure code and configurations needed to automate the provisioning of Jenkins, pipelines, agents, secrets, and the required AWS components/services.
