@@ -82,21 +82,25 @@ security:
     port: -1
 jobs:
   - script: >
-      def allJobs = [:]
-      for (int i = 0; i < 50; i++) {
-          String projname = folders[i]
-          def jobName = "job_" + jobName + ".groovy"
-          allJobs["job $jobName"] = {
-              freeStyleJob("$jobName") {
-                  displayName("$jobName")
-                  label('master')
+      node {
+          stage('Download repo') {
+              git branch: "experiment", url: "https://github.com/ish-xyz/jenkins-aws-platform.git"
+          }
 
-                  steps {
-                      dsl {
-                          external("jenkins-jobs/jobs/$jobName")
+          stage('Jobs provisioning') {
+              def allJobs = [:]
+
+              for (int i = 0; i < 3; i++) {
+                  def jobName = "job_${i}"
+                  allJobs["job ${jobName}"] = {
+                      node { 
+                          stage("Create Job ${jobName}") {
+                              git branch: "experiment", url: "https://github.com/ish-xyz/jenkins-aws-platform.git"
+                              jobDsl targets: "jenkins-jobs/jobs/${jobName}.groovy"
+                          } 
                       }
                   }
               }
+              parallel allJobs
           }
       }
-      parallel allJobs
