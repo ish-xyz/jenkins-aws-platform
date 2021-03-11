@@ -99,12 +99,12 @@ jobs:
                       //credentials('')
                       name('origin')
                   }
-                  branch('main')
+                  branch('experiment')
               }
           }
           steps {
               dsl {
-                  external('jenkins-jobs/*.groovy')
+                  external('jenkins-jobs/seed.groovy')
               }
           }
       }
